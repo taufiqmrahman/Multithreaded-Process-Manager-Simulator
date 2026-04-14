@@ -24,12 +24,25 @@ class ScriptParser {
         this.isRunning = true;
         this.interruptFlag = false;
 
-        const lines = codeStr.split('\n')
-            .map(l => l.split('//')[0].trim())
-            .filter(l => l.length > 0);
+        const blocks = codeStr.split('---');
 
         try {
-            await this._runContext(contextPid, lines);
+            const promises = blocks.map(async (block) => {
+                const lines = block.split('\n')
+                    .map(l => l.split('//')[0].trim())
+                    .filter(l => l.length > 0);
+                
+                if (lines.length > 0) {
+                    let pidToRun = contextPid;
+                    if (blocks.length > 1) {
+                        pidToRun = this.kernel.pm_fork(contextPid);
+                        if (pidToRun === -1) return; // Fork failed
+                    }
+                    await this._runContext(pidToRun, lines);
+                }
+            });
+
+            await Promise.all(promises);
         } catch (e) {
             this.kernel.log(`[Script Error] ${e.message}`);
         }
