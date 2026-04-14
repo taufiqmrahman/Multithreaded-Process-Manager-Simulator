@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multithreaded Process Manager Simulator</title>
+    <meta name="description"
+        content="An interactive educational tool for visualizing OS process lifecycles, parent-child relationships, and concurrency through a multithreaded process manager simulation.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Page Transition Overlay -->
+    <div id="page-transition" class="page-transition"></div>
+
+    <!-- CRT Scanline Overlay -->
+    <div class="overlay-scanline"></div>
+
+    <!-- ============================================
+         HOME VIEW
+    ============================================ -->
+    <div id="view-home" class="view active">
+        <!-- Animated background canvas -->
+        <canvas id="bg-canvas"></canvas>
+
+        <!-- Navigation -->
+        <nav class="home-nav">
+            <div class="nav-logo">
+                <span class="logo-bracket">[</span>
+                <span class="logo-text">SIM</span>
+                <span class="logo-bracket">]</span>
+            </div>
+            <div class="nav-links">
+                <a href="#concepts" class="nav-link">Concepts</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#docs" class="nav-link">Docs</a>
+            </div>
+            <button id="btn-launch-nav" class="btn-nav-launch">Launch Simulator</button>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badge" data-stagger="0">
+                    <span class="badge-dot"></span>
+                    <span></span>
+                </div>
+                <h1 class="hero-title" data-stagger="1">
+                    <span class="title-line">Multithreaded</span>
+                    <span class="title-line title-accent">Process Manager Simulator</span>
+                </h1>
+                <p class="hero-subtitle" data-stagger="2">
+                    An interactive Process Managing Simulator.<br>
+                    Fork processes. Simulate waits. Witness zombie states.
+                </p>
+                <div class="hero-actions" data-stagger="3">
+                    <button id="btn-launch-hero" class="btn-primary">
+                        <span>Launch Simulator</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </button>
+                    <a href="#concepts" class="btn-secondary">Learn More</a>
+                </div>
+                <div class="hero-stats" data-stagger="4">
+                    <div class="stat-item">
+                        <span class="stat-value">64</span>
+                        <span class="stat-label">Max Processes</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">4</span>
+                        <span class="stat-label">Process States</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-value">∞</span>
+                        <span class="stat-label">Simulations</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual" data-stagger="2">
+                <!-- Animated terminal mockup -->
+                <div class="terminal-mockup">
+                    <div class="terminal-header">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                        <span class="terminal-title">init — Simulator@process-ledger</span>
+                    </div>
+                    <div class="terminal-body" id="hero-terminal">
+                        <div class="t-line"><span class="t-prompt">root@simulator:~$</span> <span class="t-cmd"
+                                id="hero-typing"></span><span class="t-cursor">▋</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concepts Section -->
+        <section class="concepts-section" id="concepts">
+            <div class="section-header">
+                <div class="section-tag">// CONCEPTS</div>
+                <h2 class="section-title">What's happening<br>under the hood?</h2>
+            </div>
+            <div class="concepts-grid">
+                <div class="concept-card" data-reveal>
+                    <div class="concept-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <line x1="3" y1="9" x2="21" y2="9" />
+                            <line x1="9" y1="21" x2="9" y2="9" />
+                        </svg>
+                    </div>
+                    <h3>Process Control Block</h3>
+                    <p>Every process is represented by a PCB — a data structure containing PID, PPID, state, exit
+                        status, and an array of child references.</p>
+                    <div class="concept-code">struct PCB { pid, ppid, state, exit_status, children[] }</div>
+                </div>
+                <div class="concept-card" data-reveal>
+                    <div class="concept-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9" />
+                            <polyline points="12 7 12 12 15 15" />
+                        </svg>
+                    </div>
+                    <h3>Process States</h3>
+                    <p>A process cycles through four states: <b>RUNNING</b> → <b>WAITING</b> (blocked) → <b>ZOMBIE</b>
+                        (exited, uncollected) → <b>TERMINATED</b> (reaped).</p>
+                    <div class="state-pills">
+                        <span class="pill pill-run">RUNNING</span>
+                        <span class="pill pill-wait">WAITING</span>
+                        <span class="pill pill-zomb">ZOMBIE</span>
+                        <span class="pill pill-term">TERMINATED</span>
+                    </div>
+                </div>
+                <div class="concept-card" data-reveal>
+                    <div class="concept-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="6" y1="3" x2="6" y2="15" />
+                            <circle cx="18" cy="6" r="3" />
+                            <circle cx="6" cy="18" r="3" />
+                            <path d="M18 9a9 9 0 0 1-9 9" />
+                        </svg>
+                    </div>
+                    <h3>Fork &amp; Wait</h3>
+                    <p><code>pm_fork()</code> creates a child process. <code>pm_wait()</code> blocks the parent until
+                        the child exits, preventing orphaned zombie processes.</p>
+                    <div class="concept-code">child_pid = pm_fork(parent);<br>pm_wait(parent, child_pid);</div>
+                </div>
+                <div class="concept-card" data-reveal>
+                    <div class="concept-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg>
+                    </div>
+                    <h3>Concurrency Model</h3>
+                    <p>Worker threads run concurrently, simulated via JS Promises and async/await — mirroring the
+                        execution model of a real multithreaded Process Manager.</p>
+                    <div class="concept-code">await pm_wait(pid, child);<br>// parent blocks here...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <div class="features-inner">
+                <div class="features-text">
+                    <div class="section-tag">// FEATURES</div>
+                    <h2 class="section-title">Everything you need<br>to understand processes</h2>
+                    <ul class="features-list">
+                        <li data-reveal><span class="feature-num">01</span>
+                            <div><strong>Live Interactive Terminal</strong><br>Type commands directly and watch the
+                                Simulator respond — fork, kill, wait, exit — all in real time.</div>
+                        </li>
+                        <li data-reveal><span class="feature-num">02</span>
+                            <div><strong>Process Tree Visualizer</strong><br>Bezier-curve SVG lines connect parent to
+                                children. Nodes glow cyan, amber, or red per their state.</div>
+                        </li>
+                        <li data-reveal><span class="feature-num">03</span>
+                            <div><strong>Monitor Feed</strong><br>A timestamped millisecond-level log of every Process
+                                event — your live system journal.</div>
+                        </li>
+                        <li data-reveal><span class="feature-num">04</span>
+                            <div><strong>Simulator Panic</strong><br>Exceed the 64-process hard limit to trigger a panic
+                                overlay and force a Simulator reboot.</div>
+                        </li>
+                    </ul>
+                    <button id="btn-launch-features" class="btn-primary">Start Simulating</button>
+                </div>
+                <div class="features-preview" data-reveal>
+                    <div class="preview-card">
+                        <div class="preview-row preview-header-row">
+                            <span>PID</span><span>PPID</span><span>STATE</span>
+                        </div>
+                        <div class="preview-row row-run" id="prev-r1"><span>1</span><span>0</span><span>RUNNING</span>
+                        </div>
+                        <div class="preview-row row-run" id="prev-r2"><span>2</span><span>1</span><span>RUNNING</span>
+                        </div>
+                        <div class="preview-row row-wait" id="prev-r3"><span>3</span><span>1</span><span>WAITING</span>
+                        </div>
+                        <div class="preview-row row-zomb" id="prev-r4"><span>4</span><span>2</span><span>ZOMBIE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Docs Section -->
+        <section class="docs-section" id="docs">
+            <div class="section-header">
+                <div class="section-tag">// DOCS &amp; TEAM</div>
+                <h2 class="section-title">Resources &amp;<br>Developers</h2>
+            </div>
+            <div class="docs-grid">
+                <!-- GitHub Resource -->
+                <a href="https://github.com/taufiqmrahman/CSE321-SPRING-2026/tree/main/Project" target="_blank" class="resource-card" data-reveal>
+                    <div class="resource-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                    </div>
+                    <div class="resource-text">
+                        <div class="resource-label">CSE321 SPRING 2026 — SOURCE CODE</div>
+                        <div class="resource-title">Project Repository on GitHub</div>
+                        <div class="resource-url">github.com/taufiqmrahman/CSE321-SPRING-2026/tree/main/Project</div>
+                    </div>
+                    <div class="resource-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+                    </div>
+                </a>
+
+                <!-- Dev 1: Ahnaf -->
+                <a href="https://www.facebook.com/ahnaf.ashique.adi" target="_blank" class="dev-card" data-reveal>
+                    <div class="dev-avatar">AA</div>
+                    <div class="dev-info">
+                        <div class="dev-role">DEVELOPER</div>
+                        <div class="dev-name">Ahnaf Ashique Adi</div>
+                        <div class="dev-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            facebook.com/ahnaf.ashique.adi
+                        </div>
+                    </div>
+                    <div class="dev-badge">UI / SIM</div>
+                </a>
+
+                <!-- Dev 2: Taufiq -->
+                <a href="https://www.facebook.com/Letthebatbewithyou" target="_blank" class="dev-card" data-reveal>
+                    <div class="dev-avatar">TM</div>
+                    <div class="dev-info">
+                        <div class="dev-role">DEVELOPER</div>
+                        <div class="dev-name">Taufiq Mustafizur Rahman</div>
+                        <div class="dev-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            facebook.com/Letthebatbewithyou
+                        </div>
+                    </div>
+                    <div class="dev-badge">SIMULATOR / C</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer CTA -->
+        <section class="cta-section">
+            <h2 class="cta-title">Ready to simulate?</h2>
+            <p class="cta-sub">Boot the simulator, spawn init, and start exploring process management.</p>
+            <button id="btn-launch-cta" class="btn-primary btn-large">
+                <span>Launch the Simulator</span>
+                <span class="btn-shimmer"></span>
+            </button>
+        </section>
+
+        <footer class="home-footer">
+
+            <span>© 2026 Process Manager Simulator. All rights reserved</span>
+            <span>Made by Ahnaf Ashique Adi and Taufiq Mustafizur Rahman</span>
+        </footer>
+    </div>
+
+
+    <!-- ============================================
+         SIMULATOR VIEW
+    ============================================ -->
+    <div id="view-simulator" class="view">
+
+        <div class="sim-container">
+
+            <!-- Top Bar -->
+            <header class="sim-header">
+                <div class="sim-header-left">
+                    <button id="btn-back-home" class="btn-back">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="sim-logo">
+                        <span class="logo-bracket">[</span>SIM<span class="logo-bracket">]</span>
+                    </div>
+                    <div class="kernel-status">
+                        <span class="status-dot" id="kernel-status-dot"></span>
+                        <span id="kernel-status-text">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="sim-header-right">
+                    <div class="hud-item">
+                        Slots: <span id="slot-count" class="hud-val">0/64</span>
+                    </div>
+                    <div class="hud-item">
+                        Uptime: <span id="kernel-uptime" class="hud-val">00:00</span>
+                    </div>
+                    <button id="btn-reset" class="btn-hud">RESET</button>
+                </div>
+            </header>
+
+            <!-- Main Grid -->
+            <div class="sim-grid">
+
+                <!-- LEFT: Command Panel -->
+                <aside class="sim-panel panel-commands">
+                    <div class="panel-title-bar">
+                        <span class="panel-title">COMMAND DISPATCH</span>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="qa-label">QUICK ACTIONS</div>
+                        <div class="qa-buttons">
+                            <button class="qa-btn" id="qa-fork" title="Fork from Init (PID 1)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round">
+                                    <line x1="6" y1="3" x2="6" y2="15" />
+                                    <circle cx="18" cy="6" r="3" />
+                                    <circle cx="6" cy="18" r="3" />
+                                    <path d="M18 9a9 9 0 0 1-9 9" />
+                                </svg>
+                                Fork
+                            </button>
+                            <button class="qa-btn" id="qa-kill" title="Kill a process">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="m15 9-6 6M9 9l6 6" />
+                                </svg>
+                                Kill
+                            </button>
+                            <button class="qa-btn" id="qa-wait" title="Wait on a process">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <polyline points="12 7 12 12 15 15" />
+                                </svg>
+                                Wait
+                            </button>
+                            <button class="qa-btn" id="qa-exit" title="Exit a process">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round">
+                                    <path d="M10 22H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4" />
+                                    <polyline points="17 16 21 12 17 8" />
+                                    <line x1="21" y1="12" x2="9" y2="12" />
+                                </svg>
+                                Exit
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Terminal -->
+                    <div class="terminal-panel">
+                        <div class="qa-label">LIVE TERMINAL</div>
+                        <div id="terminal-output" class="terminal-output">
+                            <div class="t-log t-log-sys">System ready. Type 'help' for commands.</div>
+                        </div>
+                        <div class="terminal-input-row">
+                            <span class="t-prompt-live">❯</span>
+                            <input type="text" id="terminal-input" class="terminal-input"
+                                placeholder="fork, sleep 1000, wait 2, exit 2 0, kill 3..." autocomplete="off"
+                                spellcheck="false">
+                            <button id="btn-exec" class="btn-exec">RUN</button>
+                        </div>
+                    </div>
+
+                    <!-- Script Runner -->
+                    <div class="script-panel">
+                        <div class="qa-label">BATCH SCRIPT</div>
+                        <textarea id="script-input" class="script-textarea" spellcheck="false">fork
+sleep 1500
+fork
+sleep 800
+wait -1
+exit 0</textarea>
+                        <div class="script-actions">
+                            <button id="btn-run-all" class="btn-run">▶ RUN ALL</button>
+                            <button id="btn-clear-script" class="btn-clear">CLEAR</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- CENTER: Process Tree -->
+                <section class="sim-panel panel-tree">
+                    <div class="panel-title-bar">
+                        <span class="panel-title">PROCESS TREE</span>
+                        <span class="panel-subtitle" id="tree-process-count">0 processes</span>
+                    </div>
+                    <div class="tree-wrapper">
+                        <svg id="tree-svg"></svg>
+                        <div id="tree-container"></div>
+                    </div>
+                    <!-- Kernel panic overlay -->
+                    <div id="kernel-panic" class="kernel-panic hidden">
+                        <div class="panic-inner">
+                            <div class="panic-title">!! ERROR !!</div>
+                            <div class="panic-msg">Process table full — 64 slot limit reached.<br>No new processes can
+                                be forked.</div>
+                            <button id="btn-panic-reset" class="btn-primary">REBOOT Simulator</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RIGHT: State Table + Monitor -->
+                <aside class="sim-panel panel-right">
+                    <!-- State Table -->
+                    <div class="panel-title-bar">
+                        <span class="panel-title">PROCESS TABLE</span>
+                    </div>
+                    <div class="state-table-wrapper">
+                        <table class="state-table">
+                            <thead>
+                                <tr>
+                                    <th>PID</th>
+                                    <th>PPID</th>
+                                    <th>STATE</th>
+                                    <th>EXIT</th>
+                                    <th>CHILDREN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="state-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Monitor Feed -->
+                    <div class="monitor-section">
+                        <div class="panel-title-bar">
+                            <span class="panel-title">MONITOR FEED</span>
+                            <button id="btn-clear-log" class="btn-mini">CLR</button>
+                        </div>
+                        <div id="monitor-logs" class="monitor-logs"></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Quick Action Modal -->
+        <div id="qa-modal" class="qa-modal hidden">
+            <div class="qa-modal-inner">
+                <div class="qa-modal-title" id="qa-modal-title">Select Process</div>
+                <div id="qa-modal-body"></div>
+                <div class="qa-modal-actions">
+                    <button id="qa-modal-confirm" class="btn-primary">Confirm</button>
+                    <button id="qa-modal-cancel" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="kernel.js"></script>
+    <script src="parser.js"></script>
+    <script src="ui.js"></script>
+</body>
+
+</html>
