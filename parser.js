@@ -69,11 +69,7 @@ class ScriptParser {
             case 'fork': {
                 // Optional: fork <parent_pid> — defaults to current context pid
                 const parentPid = parts[1] ? parseInt(parts[1]) : pid;
-                const childPid = this.kernel.pm_fork(parentPid);
-                if (childPid > 0) {
-                    // Spawn a dummy child that does work and exits
-                    this._spawnChildWorker(childPid);
-                }
+                this.kernel.pm_fork(parentPid);
                 break;
             }
 
@@ -117,16 +113,4 @@ class ScriptParser {
         }
     }
 
-    /**
-     * Simulate a worker child process that does some work then exits.
-     */
-    async _spawnChildWorker(childPid) {
-        const workTime = Math.floor(Math.random() * 3000) + 1000;
-        await this.sleep(workTime);
-        // Only exit if still alive
-        const proc = this.kernel._getByPid(childPid);
-        if (proc && proc.state !== 'TERMINATED' && proc.state !== 'ZOMBIE') {
-            this.kernel.pm_exit(childPid, 0);
-        }
-    }
 }
