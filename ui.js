@@ -3,10 +3,6 @@
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    /* ============================================
-       CANVAS BACKGROUND — Code Rain / Particles
-    ============================================ */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
