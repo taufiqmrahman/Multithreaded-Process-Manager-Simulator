@@ -3,6 +3,10 @@
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* ============================================
+       CANVAS BACKGROUND — Code Rain / Particles
+    ============================================ */
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -223,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---- Logging ---- */
     function formatTime() {
         const d = new Date();
-        return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}.${d.getMilliseconds().toString().padStart(3,'0')}`;
+        return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}.${d.getMilliseconds().toString().padStart(3, '0')}`;
     }
 
     function addMonitorLog(msg, type = 'info') {
@@ -523,9 +527,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `, () => {
             const parentPid = parseInt(document.getElementById('modal-parent').value);
             try {
-                const childPid = kernel.pm_fork(parentPid);
-                if (childPid > 0) parser._spawnChildWorker(childPid);
-            } catch(e) {}
+                kernel.pm_fork(parentPid);
+            } catch (e) { }
         });
     });
 
@@ -593,6 +596,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!kernelBooted) bootKernel();
         if (parser.isRunning) {
             parser.interrupt();
+            btnRunAll.textContent = '▶ RUN ALL';
+            btnRunAll.style.borderColor = '';
+            btnRunAll.style.color = '';
             return;
         }
         const code = document.getElementById('script-input').value;
