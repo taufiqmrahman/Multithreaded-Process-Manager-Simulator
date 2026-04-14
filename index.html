@@ -409,12 +409,14 @@
 
                     <!-- Script Runner -->
                     <div class="script-panel">
-                        <div class="qa-label">BATCH SCRIPT</div>
-                        <textarea id="script-input" class="script-textarea" spellcheck="false">fork
-sleep 1500
-fork
-sleep 800
-wait -1
+                        <div class="qa-label">BATCH SCRIPT <span style="font-size: 0.8em; opacity: 0.7; text-transform: none;">(Use --- to run concurrent processes)</span></div>
+                        <textarea id="script-input" class="script-textarea" spellcheck="false">sleep 1000
+exit 0
+---
+sleep 2000
+exit 0
+---
+sleep 3000
 exit 0</textarea>
                         <div class="script-actions">
                             <button id="btn-run-all" class="btn-run">▶ RUN ALL</button>
