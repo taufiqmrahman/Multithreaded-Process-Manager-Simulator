@@ -4,7 +4,7 @@ An interactive educational tool for visualizing OS process lifecycles, parent-ch
 
 This project serves as an interactive OS kernel visualizer running entirely in the browser, allowing you to fork processes, simulate waits, witness zombie states, and see how a multithreaded OS kernel manages processes under the hood.
 
-## 🚀 Features
+## Features
 
 - **Live Interactive Terminal**: Type commands directly and watch the kernel respond — fork, kill, wait, exit — all in real-time.
 - **Process Tree Visualizer**: Visualizes structural parent-to-child connections with Bezier-curve SVG lines. Nodes glow dynamically based on their state.
@@ -12,7 +12,7 @@ This project serves as an interactive OS kernel visualizer running entirely in t
 - **Kernel Panic**: Trigger a kernel panic overlay by exceeding the 64-process hard limit, forcing a kernel reboot.
 - **Batch Script Runner**: Provides the ability to run sequential or simultaneous commands for bulk testing and complex simulation scenarios.
 
-## 🧠 Concepts Visualized
+## Concepts Visualized
 
 - **Process States**: Watch a process seamlessly transition through states:
   - `RUNNING`: Process is currently executing.
@@ -22,7 +22,7 @@ This project serves as an interactive OS kernel visualizer running entirely in t
 - **Process Control Block (PCB)**: Track PID, PPID, state, exit status, and children at a glance.
 - **Fork & Wait Mechanism**: Explore the traditional OS approach to creating branching processes and safely resolving them without leaving orphans.
 
-## 💻 Usage
+## Usage
 
 Upon launching the simulator, you will see a clean UI divided into three sections:
 1. **Command Dispatch (Left)**: Utilize quick actions, the interactive live terminal, or the batch script runner to interact with the kernel.
@@ -36,13 +36,13 @@ Upon launching the simulator, you will see a clean UI divided into three section
 - `exit [pid] [status]` or `e [pid] [status]` - Exits a process returning a specific status.
 - `sleep [ms]` - Sleep function used mainly in the Batch script to set delay timings.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **HTML5**
 - **Vanilla JavaScript** (No Frameworks)
 - **CSS3** (Custom Animations & UI effects)
 
-## 👥 Developers
+## Developers
 
 Developed as part of **CSE321 SPRING 2026** by:
 - **[Ahnaf Ashique Adi](https://www.facebook.com/ahnaf.ashique.adi)** (UI / SIM)
