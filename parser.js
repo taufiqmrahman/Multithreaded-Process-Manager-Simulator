@@ -66,11 +66,15 @@ class ScriptParser {
     async _runContext(pid, lines) {
         for (let i = 0; i < lines.length; i++) {
             if (this.interruptFlag) {
-                this.kernel.log('[Parser] Script execution interrupted.');
+                this.kernel.log(`[Parser] PID ${pid} interrupted.`);
                 break;
             }
             await this._runLine(pid, lines[i]);
             await this.sleep(300); // breathing room between commands for visual clarity
+            if (this.interruptFlag) {
+                this.kernel.log(`[Parser] PID ${pid} interrupted.`);
+                break;
+            }
         }
     }
 
