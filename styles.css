@@ -251,7 +251,7 @@ body::before {
 .hero-section {
     position: relative;
     z-index: 10;
-    min-height: 100vh;
+    min-height: 100svh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
@@ -867,12 +867,14 @@ body::before {
 #view-simulator {
     background: var(--bg-0);
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 .sim-container {
     display: grid;
     grid-template-rows: 52px 1fr;
     height: 100vh;
+    height: 100dvh;
 }
 
 /* ── SIM HEADER ── */
@@ -937,6 +939,7 @@ body::before {
     display: grid;
     grid-template-columns: 300px 1fr 350px;
     height: calc(100vh - 52px);
+    height: calc(100dvh - 52px);
     overflow: hidden;
 }
 
@@ -1336,6 +1339,7 @@ body::before {
         grid-template-columns: 260px 1fr;
     }
     .panel-right { display: none; }
+    .sim-tab-bar { display: none; }
 }
 
 /* ─────────────────────────────────────────────
@@ -1381,20 +1385,22 @@ body::before {
 
     /* ── HERO ── */
     .hero-section {
-        padding: 24px 20px;
+        padding: 24px 20px 40px;
         padding-top: 90px;
         min-height: auto;
+        gap: 20px;
     }
     .hero-title {
-        font-size: clamp(32px, 8vw, 48px);
+        font-size: clamp(28px, 7.5vw, 44px);
         letter-spacing: -1px;
     }
     .hero-subtitle { font-size: 14px; max-width: 100%; }
-    .hero-actions { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .hero-actions { flex-direction: column; align-items: stretch; gap: 10px; }
     .hero-actions .btn-primary,
     .hero-actions .btn-secondary { width: 100%; justify-content: center; }
-    .hero-stats { gap: 16px; }
+    .hero-stats { gap: 14px; flex-wrap: wrap; }
     .stat-value { font-size: 20px; }
+    .hero-content { gap: 22px; }
 
     /* ── CONCEPTS ── */
     .concepts-section { padding: 60px 20px; }
@@ -1429,8 +1435,16 @@ body::before {
     }
 
     /* ── SIMULATOR ── */
-    #view-simulator { height: 100dvh; }
-    .sim-container { grid-template-rows: 48px 1fr 56px; }
+    #view-simulator {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+    }
+    .sim-container {
+        grid-template-rows: 48px 1fr 56px;
+        height: 100vh;
+        height: 100dvh;
+    }
 
     /* Header compact */
     .sim-header { padding: 0 12px; }
@@ -1445,7 +1459,7 @@ body::before {
     .sim-grid {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr;
-        height: calc(100dvh - 48px - 56px);
+        height: calc(100svh - 48px - 56px);
         overflow: hidden;
     }
     .sim-panel {
@@ -1478,13 +1492,17 @@ body::before {
 
     /* Right panel — shown individually in mobile tabs */
     .panel-right {
-        display: none;
+        display: none !important;
         flex-direction: column;
         border-right: none;
         height: 100%;
+        overflow: hidden;
     }
-    .monitor-section { height: auto; flex: 1; }
-    .state-table-wrapper { flex: 0 0 auto; max-height: 50%; }
+    .panel-right.active-panel {
+        display: flex !important;
+    }
+    .monitor-section { height: auto; flex: 1; min-height: 0; }
+    .state-table-wrapper { flex: 0 0 auto; max-height: 50%; overflow-y: auto; }
 
     /* Mobile tab bar */
     .sim-tab-bar {
@@ -1543,25 +1561,61 @@ body::before {
         -webkit-backdrop-filter: blur(8px);
     }
 
-    /* Reduce heavy animations on mobile */
-    @media (prefers-reduced-motion: no-preference) {
-        .hero-title { font-size: clamp(32px, 8vw, 48px); }
-    }
 }
 
 /* ─────────────────────────────────────────────
    RESPONSIVE — SMALL PHONE  (≤ 380px)
 ───────────────────────────────────────────── */
 @media (max-width: 380px) {
-    .hero-title { font-size: 28px; }
-    .hero-content { gap: 20px; }
-    .hero-stats { gap: 12px; }
+    .hero-title { font-size: 26px !important; }
+    .hero-content { gap: 18px; }
+    .hero-stats { gap: 10px; }
     .stat-value { font-size: 18px; }
     .nav-logo { font-size: 13px; }
     .sim-header-left { gap: 8px; }
     .hud-item-slots { display: none; }
     .qa-buttons { grid-template-columns: 1fr 1fr; }
     .qa-btn { flex-direction: column; gap: 4px; font-size: 10px; padding: 8px; }
+
+    /* Tighten simulator for small phones */
+    .sim-container { grid-template-rows: 44px 1fr 52px !important; }
+    .sim-grid { height: calc(100svh - 44px - 52px) !important; }
+    .sim-tab-bar { height: 52px !important; }
+    .sim-tab { min-height: 40px; font-size: 8px; }
+}
+
+/* ─────────────────────────────────────────────
+   PORTRAIT-SPECIFIC FIXES
+───────────────────────────────────────────── */
+@media (max-width: 767px) and (orientation: portrait) {
+    /* Hero: give breathing room below fixed nav & fit in viewport */
+    .hero-section {
+        padding-top: 82px !important;
+        padding-bottom: 40px;
+        min-height: 100svh;
+        align-content: start;
+        align-items: start;
+    }
+
+    /* Stat dividers take up too much space — hide them in portrait */
+    .stat-divider { display: none; }
+    .hero-stats { flex-wrap: wrap; gap: 12px 18px; }
+
+    /* Simulator: use svh (excludes browser chrome) for reliable full-height layout */
+    #view-simulator  { height: 100svh !important; }
+    .sim-container   { height: 100svh !important; }
+    .sim-grid        { height: calc(100svh - 48px - 56px) !important; }
+
+    /* Tighter padding inside command panel to fit more content */
+    .quick-actions   { padding: 8px 12px; }
+    .terminal-panel  { padding: 8px 12px; gap: 6px; }
+    .script-panel    { padding: 8px 12px; }
+    .script-textarea { height: 80px !important; }
+
+    /* Smaller tree nodes in portrait */
+    .process-node { padding: 10px 14px; min-width: 80px; }
+    .node-pid     { font-size: 15px; }
+    .tree-level   { gap: 8px; margin-bottom: 36px; }
 }
 
 /* ─────────────────────────────────────────────
@@ -1580,6 +1634,9 @@ body::before {
         .sim-header {
             padding-left: max(12px, env(safe-area-inset-left));
             padding-right: max(12px, env(safe-area-inset-right));
+        }
+        .sim-tab-bar {
+            padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
         }
     }
 }
